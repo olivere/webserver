@@ -17,6 +17,7 @@ func main() {
 	var (
 		addr = flag.String("addr", ":8080", "HTTP address to bind to")
 		ttl  = flag.Duration("ttl", 60*time.Second, "Time to wait before shutdown is enforced")
+		wait = flag.Duration("wait", -1*time.Second, "Duration the HTTP handler waits before sending a response")
 	)
 	flag.Parse()
 
@@ -30,7 +31,7 @@ func main() {
 
 	// Create a web server
 	mux := http.DefaultServeMux
-	mux.HandleFunc("/", indexHandler)
+	mux.Handle("/", &IndexHandler{wait: *wait})
 	srv := &http.Server{
 		Handler: mux,
 	}
@@ -75,7 +76,11 @@ func main() {
 	log.Print("Exiting.")
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	time.Sleep(15 * time.Second)
+type IndexHandler struct {
+	wait time.Duration
+}
+
+func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	time.Sleep(h.wait)
 	fmt.Fprintf(w, "Hello world. The time here is %s.\n", time.Now())
 }
