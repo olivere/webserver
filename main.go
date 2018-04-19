@@ -82,5 +82,6 @@ type IndexHandler struct {
 
 func (h *IndexHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	time.Sleep(h.wait)
+	log.Printf("%s %s", r.Method, r.RequestURI)
 	fmt.Fprintf(w, "Hello world. The time here is %s.\n", time.Now())
 }
